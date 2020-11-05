@@ -1,0 +1,90 @@
+/*
+ * Copyright (C) 2020  SirNapkin1334
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this library.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * The author can be contacted via:
+ *     Email: sirnapkin@protonmail.com
+ *     Twitter: @SirNapkin1334
+ *     Discord: @SirNapkin1334#7960
+ *     Reddit: u/SirNapkin1334
+ *     IRC: SirNapkin1334; Registered on Freenode, EFNet, possibly others
+ *
+ * If you wish to use this software in a way violating the terms, please
+ * contact the author, as an exception can be made.
+ */
+
+plugins {
+	id "java"
+	id "com.github.johnrengelman.shadow" version "6.0.0"
+	id "org.jetbrains.kotlin.jvm" version "1.4.20-RC"
+	id "io.freefair.lombok" version "5.3.0"
+}
+
+
+java {
+	modularity.inferModulePath = true
+}
+
+
+group "tech.napkin"
+version "1.0"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation("junit:junit:4.12")
+
+    implementation(
+        "org.jetbrains:annotations:19.0.0",
+		"org.jetbrains.kotlin:kotlin-stdlib-jdk8",
+		"org.jetbrains.kotlin:kotlin-reflect"
+    )
+
+}
+
+tasks.jar {
+    enabled = false // replaced by shadowJar
+    dependsOn tasks.shadowJar
+}
+
+tasks.shadowJar {
+    archiveFileName = "${rootProject.name}.jar"
+
+    String builtBy = System.properties["user.name"]
+    try {
+        if ("sir" == builtBy && "napkin" == (String) new BufferedReader(new InputStreamReader(Runtime.getRuntime().exec("cat /etc/hostname").getInputStream())).lines().toArray()[0]) {
+            builtBy = "SirNapkin1334"
+        }
+    } catch (IOException ignored) {}
+
+    manifest.attributes (
+        "Main-Class": "$rootProject.group.${rootProject.name.toLowerCase(Locale.ENGLISH)}.Main",
+        "Built-By": builtBy,
+        "Build-Jdk": System.properties["java.version"],
+        "Implementation-Title": rootProject.name,
+        "Implementation-Version": rootProject.version,
+        "Implementation-Vendor": "Napkin Technologies",
+        "Created-By": "Shadow Jar"
+    )
+
+    from "LICENSE"
+}
+
+compileKotlin.kotlinOptions.jvmTarget = "1.8"
+
+compileTestKotlin.kotlinOptions.jvmTarget = "1.8"
+
